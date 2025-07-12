@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ラブマゲドン</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>ラブマゲドン</h1>
+
+    <!-- 画面1: 参加者登録 -->
+    <div id="setup-screen" class="screen-container">
+        <h2>参加者登録 (4〜20名)</h2>
+        <div id="player-inputs">
+            <input type="text" placeholder="参加者1の名前"><br>
+            <input type="text" placeholder="参加者2の名前"><br>
+            <input type="text" placeholder="参加者3の名前"><br>
+            <input type="text" placeholder="参加者4の名前"><br>
+        </div>
+        <button id="add-player-btn">参加者を追加</button>
+        <button id="start-btn">登録完了</button>
+    </div>
+
+    <!-- 画面2: テーマ入力 -->
+    <div id="theme-screen" class="hidden screen-container">
+        <h2>お題を決めてください</h2>
+        <p>例：「無人島に二人きりで行くなら誰？」</p>
+        <input type="text" id="theme-input" size="50">
+        <button id="theme-confirm-btn">お題決定</button>
+        <button id="back-to-setup-btn">参加者名入力に戻る</button>
+    </div>
+
+    <!-- NEW: 画面2.5: 本人確認 -->
+    <div id="voter-confirm-screen" class="hidden screen-container">
+        <h2>あなたは <span id="confirm-voter-name"></span> さんですか？</h2>
+        <p>ご本人であれば「はい」を押して次へ進んでください。</p>
+        <button id="confirm-voter-btn">はい、そうです</button>
+    </div>
+
+    <!-- 画面3: 投票 -->
+    <div id="vote-screen" class="hidden screen-container">
+        <h2 id="theme-display"></h2>
+        <div id="voter-info">
+            <p><span id="voter-name"></span>さん、選んでください</p>
+        </div>
+        <div id="choices"></div>
+        <!-- NEW: 戻るボタンを追加 -->
+        <button id="back-to-confirm-btn">いいえ、違います（本人確認に戻る）</button>
+    </div>
+
+    <!-- 画面3.5: 結果発表前のクッションページ -->
+    <div id="pre-result-screen" class="hidden screen-container">
+        <h2>全員の投票が完了しました...</h2>
+        <p>運命の結果を見る準備はいいですか？</p>
+        <button id="show-result-btn">結果を見る</button>
+    </div>
+
+    <!-- 画面4: 結果発表 -->
+    <div id="result-screen" class="hidden">
+        <h2>結果発表</h2>
+        <div id="table-container">
+            <canvas id="connection-canvas"></canvas>
+            <div id="couples">
+                <div id="side-left"></div>
+                <div id="side-right"></div>
+            </div>
+        </div>
+        <button onclick="location.reload()">もう一度やる</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
