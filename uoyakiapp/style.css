@@ -1,0 +1,126 @@
+/* 全体の基本設定 */
+body {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f4f8;
+    color: #333;
+}
+
+/* 各画面のコンテナ */
+.screen-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #ff69b4;
+    text-shadow: 2px 2px #fff;
+}
+
+h2 {
+    color: #007bff;
+}
+
+.hidden {
+    display: none;
+}
+
+input[type="text"] {
+    margin-bottom: 10px;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 80%;
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 10px;
+    border-radius: 50px;
+    border: none;
+    color: white;
+    background-color: #ff69b4;
+    transition: transform 0.2s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+/* 「決定」系のボタン */
+#start-btn, #theme-confirm-btn, #confirm-voter-btn {
+    background-color: #17a2b8;
+}
+
+/* 投票の選択肢ボタン */
+#choices button {
+    display: block;
+    margin: 10px auto;
+    width: 250px;
+    background-color: #28a745;
+}
+
+/* 結果発表のテーブル */
+#table-container {
+    position: relative;
+    background-color: #333;
+    border: 10px solid #ffc107;
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+#couples {
+    display: flex;
+    justify-content: space-between;
+    min-height: 300px;
+}
+
+#side-left, #side-right {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.player-box {
+    padding: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 10px;
+}
+
+#side-left .player-box {
+    background-color: #ff69b4;
+    color: white;
+}
+
+#side-right .player-box {
+    background-color: #17a2b8;
+    color: white;
+}
+
+/* 「戻る」系のボタン */
+#back-to-setup-btn, #back-to-confirm-btn {
+    background-color: #6c757d;
+    font-size: 14px;
+    padding: 8px 16px;
+}
+
+/* 「結果を見る」ボタン */
+#show-result-btn {
+    font-size: 24px;
+    padding: 20px 40px;
+    margin-top: 20px;
+    background-color: #fd7e14;
+}
