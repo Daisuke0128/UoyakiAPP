@@ -34,7 +34,7 @@
         <button id="back-to-setup-btn">参加者名入力に戻る</button>
     </div>
 
-    <!-- NEW: 画面2.5: 本人確認 -->
+    <!-- 画面2.5: 本人確認 -->
     <div id="voter-confirm-screen" class="hidden screen-container">
         <h2>あなたは <span id="confirm-voter-name"></span> さんですか？</h2>
         <p>ご本人であれば「はい」を押して次へ進んでください。</p>
@@ -48,7 +48,6 @@
             <p><span id="voter-name"></span>さん、選んでください</p>
         </div>
         <div id="choices"></div>
-        <!-- NEW: 戻るボタンを追加 -->
         <button id="back-to-confirm-btn">いいえ、違います（本人確認に戻る）</button>
     </div>
 
@@ -68,8 +67,15 @@
                 <div id="side-left"></div>
                 <div id="side-right"></div>
             </div>
+            <!-- NEW: カップル不成立時の表示エリア -->
+            <div id="no-couple-message" class="hidden">
+                <div class="broken-heart">💔</div>
+                <p>残念ながら、カップル不成立です...</p>
+            </div>
         </div>
-        <button onclick="location.reload()">もう一度やる</button>
+        <!-- NEW: ボタンを変更 -->
+        <button id="play-again-btn">同じメンバーでもう一度</button>
+        <button id="start-over-btn">最初からやり直す</button>
     </div>
 
     <script src="script.js"></script>

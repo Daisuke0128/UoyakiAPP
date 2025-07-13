@@ -14,6 +14,8 @@ const backToSetupBtn = document.getElementById('back-to-setup-btn');
 const confirmVoterBtn = document.getElementById('confirm-voter-btn');
 const backToConfirmBtn = document.getElementById('back-to-confirm-btn');
 const showResultBtn = document.getElementById('show-result-btn');
+const playAgainBtn = document.getElementById('play-again-btn');
+const startOverBtn = document.getElementById('start-over-btn');
 const playerInputsContainer = document.getElementById('player-inputs');
 
 // アプリのデータを保存する変数
@@ -21,9 +23,8 @@ let players = []; // 参加者の名前リスト
 let votes = {};   // 投票結果 {投票者: 投票された人}
 let currentVoterIndex = 0; // 現在投票する人のインデックス
 
-// --- イベントリスナー（ボタンが押された時の処理）をここにまとめます ---
+// --- イベントリスナー（ボタンが押された時の処理） ---
 
-// 「参加者を追加」ボタンが押された時の処理
 addPlayerBtn.addEventListener('click', () => {
     const playerCount = playerInputsContainer.getElementsByTagName('input').length;
     if (playerCount < 20) {
@@ -37,7 +38,6 @@ addPlayerBtn.addEventListener('click', () => {
     }
 });
 
-// 「登録完了」ボタンが押された時の処理
 startBtn.addEventListener('click', () => {
     players = Array.from(playerInputsContainer.getElementsByTagName('input'))
                    .map(input => input.value.trim())
@@ -52,7 +52,6 @@ startBtn.addEventListener('click', () => {
     themeScreen.classList.remove('hidden');
 });
 
-// 「お題決定」ボタンが押された時の処理
 themeConfirmBtn.addEventListener('click', () => {
     const theme = document.getElementById('theme-input').value;
     if (theme.trim() === '') {
@@ -60,47 +59,48 @@ themeConfirmBtn.addEventListener('click', () => {
         return;
     }
     document.getElementById('theme-display').textContent = `お題：${theme}`;
-
     themeScreen.classList.add('hidden');
     showVoterConfirmation();
 });
 
-// 「参加者名入力に戻る」ボタンが押された時の処理
 backToSetupBtn.addEventListener('click', () => {
     themeScreen.classList.add('hidden');
     setupScreen.classList.remove('hidden');
 });
 
-// 「はい、そうです」（本人確認）ボタンが押された時の処理
 confirmVoterBtn.addEventListener('click', () => {
     voterConfirmScreen.classList.add('hidden');
     voteScreen.classList.remove('hidden');
     setupVoteScreen();
 });
 
-// 「いいえ、違います」（本人確認に戻る）ボタンが押された時の処理
 backToConfirmBtn.addEventListener('click', () => {
     voteScreen.classList.add('hidden');
     showVoterConfirmation();
 });
 
-// 「結果を見る」ボタンが押された時の処理
 showResultBtn.addEventListener('click', () => {
     preResultScreen.classList.add('hidden');
     showResults();
 });
 
+playAgainBtn.addEventListener('click', () => {
+    resetForNewRound();
+});
+
+startOverBtn.addEventListener('click', () => {
+    location.reload();
+});
+
 
 // --- アプリの主な機能に関する関数 ---
 
-// 本人確認画面を表示する関数
 function showVoterConfirmation() {
     const currentVoter = players[currentVoterIndex];
     document.getElementById('confirm-voter-name').textContent = currentVoter;
     voterConfirmScreen.classList.remove('hidden');
 }
 
-// 投票画面を準備する関数
 function setupVoteScreen() {
     const currentVoter = players[currentVoterIndex];
     document.getElementById('voter-name').textContent = currentVoter;
@@ -120,7 +120,6 @@ function setupVoteScreen() {
     });
 }
 
-// 投票を行い、次の人に進む関数
 function castVote(votedPlayer) {
     const currentVoter = players[currentVoterIndex];
     votes[currentVoter] = votedPlayer;
@@ -135,7 +134,21 @@ function castVote(votedPlayer) {
     }
 }
 
-// 結果を表示する関数
+function resetForNewRound() {
+    votes = {};
+    currentVoterIndex = 0;
+
+    resultScreen.classList.add('hidden');
+    
+    const canvas = document.getElementById('connection-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    document.getElementById('no-couple-message').classList.add('hidden');
+
+    themeScreen.classList.remove('hidden');
+    document.getElementById('theme-input').value = '';
+}
+
 function showResults() {
     resultScreen.classList.remove('hidden');
 
@@ -171,22 +184,15 @@ function showResults() {
     });
 
     if (couples.length > 0) {
+        document.getElementById('no-couple-message').classList.add('hidden');
         setTimeout(() => {
             drawConnections(couples);
         }, 100);
     } else {
-        const noCoupleMsg = document.createElement('p');
-        noCoupleMsg.textContent = '残念ながら、カップル不成立です...';
-        noCoupleMsg.style.color = 'white';
-        noCoupleMsg.style.fontSize = '24px';
-        noCoupleMsg.style.width = '100%';
-        noCoupleMsg.style.position = 'absolute';
-        noCoupleMsg.style.top = '45%';
-        document.getElementById('table-container').appendChild(noCoupleMsg);
+        document.getElementById('no-couple-message').classList.remove('hidden');
     }
 }
 
-// 線を描画する専門の関数（点線＆ハート付きアニメーション版）
 function drawConnections(couples) {
     const canvas = document.getElementById('connection-canvas');
     const tableContainer = document.getElementById('table-container');
@@ -237,7 +243,6 @@ function drawConnections(couples) {
     });
 }
 
-// 1本の線をアニメーションさせる関数
 function animateLine(ctx, startX, startY, endX, endY, duration) {
     const startTime = performance.now();
 
@@ -261,7 +266,6 @@ function animateLine(ctx, startX, startY, endX, endY, duration) {
     requestAnimationFrame(draw);
 }
 
-// ハートを描画する専門の関数
 function drawHeart(ctx, x, y, size) {
     ctx.save();
     ctx.setLineDash([]); 
