@@ -5,9 +5,10 @@ const voterConfirmScreen = document.getElementById('voter-confirm-screen');
 const voteScreen = document.getElementById('vote-screen');
 const preResultScreen = document.getElementById('pre-result-screen');
 const resultScreen = document.getElementById('result-screen');
+const allVotesScreen = document.getElementById('all-votes-screen');
 
 // ボタンなどの要素を取得
-const addPlayerBtn = document.getElementById('add-player-btn');
+const addPlayerBtns = document.querySelectorAll('.add-player-btn');
 const startBtn = document.getElementById('start-btn');
 const themeConfirmBtn = document.getElementById('theme-confirm-btn');
 const backToSetupBtn = document.getElementById('back-to-setup-btn');
@@ -16,35 +17,53 @@ const backToConfirmBtn = document.getElementById('back-to-confirm-btn');
 const showResultBtn = document.getElementById('show-result-btn');
 const playAgainBtn = document.getElementById('play-again-btn');
 const startOverBtn = document.getElementById('start-over-btn');
-const playerInputsContainer = document.getElementById('player-inputs');
+const showAllVotesBtn = document.getElementById('show-all-votes-btn');
+const backToResultsBtn = document.getElementById('back-to-results-btn');
+const groupAInputs = document.getElementById('group-a-inputs');
+const groupBInputs = document.getElementById('group-b-inputs');
 
 // アプリのデータを保存する変数
-let players = []; // 参加者の名前リスト
-let votes = {};   // 投票結果 {投票者: 投票された人}
-let currentVoterIndex = 0; // 現在投票する人のインデックス
+let players = []; // {name: '名前', group: 'a'} のようなオブジェクトの配列
+let votes = {};
+let currentVoterIndex = 0;
 
 // --- イベントリスナー（ボタンが押された時の処理） ---
 
-addPlayerBtn.addEventListener('click', () => {
-    const playerCount = playerInputsContainer.getElementsByTagName('input').length;
-    if (playerCount < 20) {
-        const newInput = document.createElement('input');
-        newInput.type = 'text';
-        newInput.placeholder = `参加者${playerCount + 1}の名前`;
-        playerInputsContainer.appendChild(document.createElement('br'));
-        playerInputsContainer.appendChild(newInput);
-    } else {
-        alert('参加者は最大20名までです。');
-    }
+// 「参加者を追加」ボタンの処理 (A, B両方に対応)
+addPlayerBtns.forEach(button => {
+    button.addEventListener('click', (e) => {
+        const group = e.target.dataset.group;
+        const targetContainer = group === 'a' ? groupAInputs : groupBInputs;
+        const playerCount = targetContainer.getElementsByTagName('input').length;
+
+        if (playerCount < 10) {
+            const newInput = document.createElement('input');
+            newInput.type = 'text';
+            newInput.placeholder = `参加者${playerCount + 1}の名前`;
+            targetContainer.appendChild(document.createElement('br'));
+            targetContainer.appendChild(newInput);
+        } else {
+            alert(`グループ${group.toUpperCase()}の参加者は最大10名までです。`);
+        }
+    });
 });
 
+// 「登録完了」ボタンの処理
 startBtn.addEventListener('click', () => {
-    players = Array.from(playerInputsContainer.getElementsByTagName('input'))
-                   .map(input => input.value.trim())
-                   .filter(name => name !== "");
+    const groupAPlayers = Array.from(groupAInputs.getElementsByTagName('input'))
+                               .map(input => input.value.trim())
+                               .filter(name => name !== "")
+                               .map(name => ({ name, group: 'a' })); // グループ情報を付与
+
+    const groupBPlayers = Array.from(groupBInputs.getElementsByTagName('input'))
+                               .map(input => input.value.trim())
+                               .filter(name => name !== "")
+                               .map(name => ({ name, group: 'b' })); // グループ情報を付与
+
+    players = [...groupAPlayers, ...groupBPlayers];
 
     if (players.length < 4) {
-        alert('参加者は4名以上で入力してください。');
+        alert('参加者は合計4名以上で入力してください。');
         return;
     }
 
@@ -92,41 +111,47 @@ startOverBtn.addEventListener('click', () => {
     location.reload();
 });
 
+showAllVotesBtn.addEventListener('click', () => {
+    if (confirm('オーナー（司会者）の方のみご覧ください。\nよろしいですか？')) {
+        resultScreen.classList.add('hidden');
+        displayAllVotes();
+        allVotesScreen.classList.remove('hidden');
+    }
+});
+
+backToResultsBtn.addEventListener('click', () => {
+    allVotesScreen.classList.add('hidden');
+    resultScreen.classList.remove('hidden');
+});
+
 
 // --- アプリの主な機能に関する関数 ---
 
 function showVoterConfirmation() {
     const currentVoter = players[currentVoterIndex];
-    document.getElementById('confirm-voter-name').textContent = currentVoter;
+    document.getElementById('confirm-voter-name').textContent = currentVoter.name;
     voterConfirmScreen.classList.remove('hidden');
 }
 
 function setupVoteScreen() {
     const currentVoter = players[currentVoterIndex];
-    document.getElementById('voter-name').textContent = currentVoter;
-
+    document.getElementById('voter-name').textContent = currentVoter.name;
     const choicesContainer = document.getElementById('choices');
     choicesContainer.innerHTML = ''; 
-    
     players.forEach(player => {
-        if (player !== currentVoter) {
+        if (player.name !== currentVoter.name) {
             const choiceBtn = document.createElement('button');
-            choiceBtn.textContent = player;
-            choiceBtn.addEventListener('click', () => {
-                castVote(player);
-            });
+            choiceBtn.textContent = player.name;
+            choiceBtn.addEventListener('click', () => castVote(player.name));
             choicesContainer.appendChild(choiceBtn);
         }
     });
 }
 
-function castVote(votedPlayer) {
-    const currentVoter = players[currentVoterIndex];
-    votes[currentVoter] = votedPlayer;
-
+function castVote(votedPlayerName) {
+    votes[players[currentVoterIndex].name] = votedPlayerName;
     currentVoterIndex++;
     voteScreen.classList.add('hidden');
-
     if (currentVoterIndex < players.length) {
         showVoterConfirmation();
     } else {
@@ -137,46 +162,43 @@ function castVote(votedPlayer) {
 function resetForNewRound() {
     votes = {};
     currentVoterIndex = 0;
-
     resultScreen.classList.add('hidden');
-    
+    allVotesScreen.classList.add('hidden');
     const canvas = document.getElementById('connection-canvas');
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     document.getElementById('no-couple-message').classList.add('hidden');
-
     themeScreen.classList.remove('hidden');
     document.getElementById('theme-input').value = '';
 }
 
 function showResults() {
     resultScreen.classList.remove('hidden');
-
     const sideLeft = document.getElementById('side-left');
     const sideRight = document.getElementById('side-right');
     const couples = [];
     const checkedPlayers = [];
-
     sideLeft.innerHTML = '';
     sideRight.innerHTML = '';
 
     players.forEach(player1 => {
-        const player2 = votes[player1];
-        if (votes[player2] === player1) {
-            if (!checkedPlayers.includes(player1) && !checkedPlayers.includes(player2)) {
-                couples.push([player1, player2]);
-                checkedPlayers.push(player1, player2);
+        const player1Name = player1.name;
+        const player2Name = votes[player1Name];
+        if (votes[player2Name] === player1Name) {
+            if (!checkedPlayers.includes(player1Name) && !checkedPlayers.includes(player2Name)) {
+                couples.push([player1Name, player2Name]);
+                checkedPlayers.push(player1Name, player2Name);
             }
         }
     });
 
-    players.forEach((player, index) => {
+    // 席順をグループ分けで固定
+    players.forEach(player => {
         const playerBox = document.createElement('div');
         playerBox.classList.add('player-box');
-        playerBox.id = `player-${player}`;
-        playerBox.textContent = player;
-
-        if (index % 2 === 0) {
+        playerBox.id = `player-${player.name}`;
+        playerBox.textContent = player.name;
+        if (player.group === 'a') {
             sideLeft.appendChild(playerBox);
         } else {
             sideRight.appendChild(playerBox);
@@ -185,11 +207,20 @@ function showResults() {
 
     if (couples.length > 0) {
         document.getElementById('no-couple-message').classList.add('hidden');
-        setTimeout(() => {
-            drawConnections(couples);
-        }, 100);
+        setTimeout(() => drawConnections(couples), 100);
     } else {
         document.getElementById('no-couple-message').classList.remove('hidden');
+    }
+}
+
+function displayAllVotes() {
+    const listContainer = document.getElementById('all-votes-list');
+    listContainer.innerHTML = '';
+    for (const voter in votes) {
+        const votedFor = votes[voter];
+        const voteEntry = document.createElement('p');
+        voteEntry.innerHTML = `<span class="voter-name">${voter}</span> 👉 <span class="voted-name">${votedFor}</span>`;
+        listContainer.appendChild(voteEntry);
     }
 }
 
@@ -198,24 +229,20 @@ function drawConnections(couples) {
     const tableContainer = document.getElementById('table-container');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-
     canvas.width = tableContainer.offsetWidth;
     canvas.height = tableContainer.offsetHeight;
     canvas.style.position = 'absolute';
     canvas.style.top = '0';
     canvas.style.left = '0';
     canvas.style.pointerEvents = 'none';
-
     ctx.strokeStyle = '#ff4757';
     ctx.lineWidth = 4;
     ctx.shadowColor = 'rgba(255, 255, 255, 0.7)';
     ctx.shadowBlur = 10;
     ctx.lineCap = 'round';
     ctx.setLineDash([15, 10]);
-
     let delay = 0;
     const lineDuration = 500;
-
     couples.forEach(couple => {
         setTimeout(() => {
             const name1Element = document.getElementById(`player-${couple[0]}`);
@@ -224,14 +251,11 @@ function drawConnections(couples) {
                 const rect1 = name1Element.getBoundingClientRect();
                 const rect2 = name2Element.getBoundingClientRect();
                 const canvasRect = tableContainer.getBoundingClientRect();
-
                 const startX = rect1.left + rect1.width / 2 - canvasRect.left;
                 const startY = rect1.top + rect1.height / 2 - canvasRect.top;
                 const endX = rect2.left + rect2.width / 2 - canvasRect.left;
                 const endY = rect2.top + rect2.height / 2 - canvasRect.top;
-                
                 animateLine(ctx, startX, startY, endX, endY, lineDuration);
-
                 setTimeout(() => {
                     const midX = startX + (endX - startX) / 2;
                     const midY = startY + (endY - startY) / 2;
@@ -245,24 +269,19 @@ function drawConnections(couples) {
 
 function animateLine(ctx, startX, startY, endX, endY, duration) {
     const startTime = performance.now();
-
     function draw(currentTime) {
         const elapsedTime = currentTime - startTime;
         const progress = Math.min(elapsedTime / duration, 1);
-
         const currentX = startX + (endX - startX) * progress;
         const currentY = startY + (endY - startY) * progress;
-
         ctx.beginPath();
         ctx.moveTo(startX, startY);
         ctx.lineTo(currentX, currentY);
         ctx.stroke();
-
         if (progress < 1) {
             requestAnimationFrame(draw);
         }
     }
-
     requestAnimationFrame(draw);
 }
 
