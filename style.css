@@ -57,7 +57,7 @@ button:hover {
     transform: scale(1.05);
 }
 
-/* NEW: 参加者入力画面のレイアウト */
+/* 参加者入力画面のレイアウト */
 #setup-groups-container {
     display: flex;
     justify-content: space-around;
@@ -214,6 +214,8 @@ button:hover {
     color: #ff69b4;
     font-weight: bold;
 }
+
+/* 削除: カスタムメッセージ用のモーダルスタイルを全て削除しました */
 
 /* アニメーションの定義 */
 @keyframes beat {

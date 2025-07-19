@@ -153,8 +153,10 @@ function castVote(votedPlayerName) {
     currentVoterIndex++;
     voteScreen.classList.add('hidden');
     if (currentVoterIndex < players.length) {
+        alert(`${players[currentVoterIndex - 1].name}さんの投票が完了しました。\nPCを次の人（${players[currentVoterIndex].name}さん）に渡してください。`);
         showVoterConfirmation();
     } else {
+        alert('全員の投票が完了しました！');
         preResultScreen.classList.remove('hidden');
     }
 }
